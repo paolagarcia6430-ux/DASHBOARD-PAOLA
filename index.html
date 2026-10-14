@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel de ventas | Gerencia Comercial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  :root {
+    --fondo: #F3F5F6;
+    --tinta: #14232B;
+    --tinta2: #4A5B65;
+    --linea: #D5DDE1;
+    --primario: #0E5A6B;
+    --primario-osc: #0A4654;
+    --claro: #9CC6D0;
+    --tenue: #DCEBEF;
+    --aviso-fondo: #FBF1DC;
+    --aviso-borde: #D9A441;
+    --pos: #1F7A4D;
+    --neg: #B3372F;
+    color-scheme: light;
+  }
+
+  body {
+    margin: 0;
+    background: var(--fondo);
+    color: var(--tinta);
+    font: 400 1rem/1.5 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible { outline: 3px solid var(--primario); outline-offset: 2px; }
+
+  .saltar { position: absolute; left: -9999px; top: 0; background: var(--tinta); color: #fff; padding: 8px 12px; z-index: 10; }
+  .saltar:focus { left: 8px; top: 8px; }
+
+  .cabecera, main, .pie { max-width: 1240px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+
+  .cabecera { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-top: 28px; padding-bottom: 16px; }
+  h1 { margin: 0; font-size: 1.75rem; font-weight: 600; line-height: 1.2; }
+  h2 { margin: 0 0 4px; font-size: 1.1rem; font-weight: 600; }
+  .estado { margin: 4px 0 0; color: var(--tinta2); font-size: .9rem; }
+
+  .btn {
+    font: inherit; font-weight: 500; padding: 8px 16px; cursor: pointer;
+    border: 1px solid var(--primario); background: var(--primario); color: #fff; border-radius: 3px;
+  }
+  .btn:hover { background: var(--primario-osc); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-sec { background: transparent; color: var(--primario); }
+  .btn-sec:hover { background: var(--tenue); }
+  .btn-texto { background: transparent; border-color: transparent; color: var(--primario); text-decoration: underline; padding-left: 4px; padding-right: 4px; }
+  .btn-texto:hover { background: transparent; color: var(--primario-osc); }
+
+  .error { margin: 8px 0 16px; padding: 12px 16px; border-left: 4px solid var(--neg); background: #FBE9E7; }
+
+  .filtros {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px 16px; align-items: end;
+    padding: 16px 0; border-top: 1px solid var(--linea);
+  }
+  .campo label { display: block; margin-bottom: 4px; font-size: .85rem; font-weight: 500; color: var(--tinta2); }
+  .campo input, .campo select {
+    width: 100%; height: 40px; padding: 0 10px; font: inherit; color: var(--tinta);
+    background: #fff; border: 1px solid #8FA1AA; border-radius: 3px;
+  }
+
+  .calidad { margin: 4px 0 24px; padding: 12px 16px; border-left: 4px solid var(--aviso-borde); background: var(--aviso-fondo); }
+  .calidad p { margin: 0; }
+  .reglas { display: flex; flex-wrap: wrap; gap: 4px 24px; margin: 8px 0 0; }
+  .reglas label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .reglas input { width: 18px; height: 18px; accent-color: var(--primario); }
+  .calidad details { margin-top: 8px; }
+  .calidad summary { cursor: pointer; font-weight: 500; }
+  .calidad .ayuda { margin: 8px 0; font-size: .9rem; color: var(--tinta2); }
+
+  .kpis {
+    margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1px;
+    background: var(--linea); border-top: 2px solid var(--tinta); border-bottom: 1px solid var(--linea);
+  }
+  .kpi { background: var(--fondo); padding: 16px 20px 18px; }
+  .kpi:first-child { padding-left: 0; }
+  .kpi dt { margin: 0; color: var(--tinta2); font-size: .9rem; }
+  .kpi dd { margin: 0; }
+  .kpi .valor { margin-top: 4px; font-size: 1.9rem; font-weight: 600; line-height: 1.2; }
+  .kpi .nota { margin-top: 4px; font-size: .85rem; color: var(--tinta2); }
+  .pos { color: var(--pos); }
+  .neg { color: var(--neg); }
+  .vacio { margin: 16px 0 0; padding: 12px 16px; background: #fff; border: 1px solid var(--linea); }
+
+  .rejilla { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 0 48px; margin-top: 32px; }
+  .bloque { margin-bottom: 32px; }
+  .nota-seccion { margin: 0 0 12px; color: var(--tinta2); font-size: .9rem; min-height: 1.35em; }
+  .grafico { position: relative; height: 360px; }
+
+  .ranking { list-style: none; margin: 12px -8px 0; padding: 0; }
+  .rank {
+    display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; width: 100%; padding: 8px;
+    background: none; border: 0; border-radius: 3px; font: inherit; color: inherit; text-align: left; cursor: pointer;
+  }
+  .rank:hover { background: #E8F0F2; }
+  .rank[aria-pressed="true"] { background: var(--tenue); }
+  .rank .nombre { font-weight: 500; }
+  .rank .valor { text-align: right; }
+  .rank .barra { grid-column: 1; align-self: center; height: 8px; background: #E1E8EB; border-radius: 2px; overflow: hidden; }
+  .rank .barra i { display: block; height: 100%; background: var(--primario); }
+  .rank .pct { grid-column: 2; text-align: right; font-size: .85rem; color: var(--tinta2); }
+  .vacio-lista { padding: 8px; color: var(--tinta2); }
+
+  .detalle-cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .tabla-scroll { overflow-x: auto; }
+  .tabla { width: 100%; border-collapse: collapse; }
+  .tabla th, .tabla td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--linea); }
+  .tabla thead th { padding: 0; border-bottom: 2px solid var(--tinta); white-space: nowrap; }
+  .tabla tbody tr:hover { background: #EAF0F2; }
+  .tabla .num { text-align: right; }
+  .orden {
+    display: inline-flex; gap: 6px; width: 100%; padding: 10px 12px; background: none; border: 0;
+    font: inherit; font-weight: 600; color: inherit; text-align: left; cursor: pointer;
+  }
+  th.num .orden { justify-content: flex-end; }
+  .flecha { font-size: .7rem; min-width: .8em; }
+  .tabla-chica { font-size: .9rem; }
+
+  .pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .pager p { margin: 0; color: var(--tinta2); font-size: .9rem; }
+  .pager div { display: flex; gap: 8px; }
+
+  .pie { padding-top: 8px; padding-bottom: 32px; color: var(--tinta2); font-size: .85rem; }
+
+  @media (max-width: 900px) {
+    .rejilla { grid-template-columns: 1fr; }
+    .grafico { height: 300px; }
+  }
+  @media (max-width: 560px) {
+    .cabecera { flex-direction: column; align-items: flex-start; }
+    .kpi { padding-left: 0; }
+    .kpi .valor { font-size: 1.6rem; }
+  }
+  @media print {
+    body { background: #fff; }
+    .filtros, .reglas, .btn, .pager, .calidad details { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<a class="saltar" href="#contenido">Ir al contenido</a>
+
+<header class="cabecera">
+  <div>
+    <h1>Panel de ventas</h1>
+    <p id="estado-datos" class="estado" role="status">Cargando datos…</p>
+  </div>
+  <button type="button" id="btn-actualizar" class="btn">Actualizar datos</button>
+</header>
+
+<main id="contenido">
+  <div id="error" class="error" role="alert" hidden></div>
+
+  <section class="filtros" aria-label="Filtros">
+    <div class="campo"><label for="f-desde">Desde</label><input type="date" id="f-desde"></div>
+    <div class="campo"><label for="f-hasta">Hasta</label><input type="date" id="f-hasta"></div>
+    <div class="campo"><label for="f-region">Región</label><select id="f-region"><option value="">Todas</option></select></div>
+    <div class="campo"><label for="f-producto">Producto</label><select id="f-producto"><option value="">Todos</option></select></div>
+    <div class="campo">
+      <label for="f-vendedor">Vendedor</label>
+      <input type="search" id="f-vendedor" list="lista-vendedores" placeholder="Buscar por nombre" autocomplete="off">
+      <datalist id="lista-vendedores"></datalist>
+    </div>
+    <div><button type="button" id="btn-limpiar" class="btn btn-texto">Quitar filtros</button></div>
+  </section>
+
+  <section id="calidad" class="calidad" aria-label="Calidad de los datos">
+    <p id="calidad-resumen">Revisando los datos…</p>
+    <div class="reglas">
+      <label><input type="checkbox" id="r-futuras"> Excluir ventas con fecha posterior a hoy</label>
+      <label><input type="checkbox" id="r-atipicos"> Excluir montos atípicos</label>
+    </div>
+    <details id="calidad-detalle" hidden>
+      <summary>Ver registros excluidos</summary>
+      <p class="ayuda">Corrija el dato en la hoja de cálculo y desaparecerá de esta lista en la próxima lectura. La columna Fila indica dónde está.</p>
+      <div class="tabla-scroll">
+        <table class="tabla tabla-chica">
+          <thead><tr><th scope="col">Fila</th><th scope="col">Fecha</th><th scope="col">Vendedor</th><th scope="col">Producto</th><th scope="col" class="num">Monto</th><th scope="col">Motivo</th></tr></thead>
+          <tbody id="cuerpo-excluidos"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <dl id="kpis" class="kpis" aria-label="Indicadores principales"></dl>
+  <p id="vacio" class="vacio" hidden>No hay ventas con estos filtros. <button type="button" class="btn btn-texto" data-accion="limpiar">Quitar filtros</button></p>
+
+  <div class="rejilla">
+    <section class="bloque" aria-labelledby="t-mensual">
+      <h2 id="t-mensual">Ventas por mes</h2>
+      <p id="nota-grafico" class="nota-seccion"></p>
+      <div class="grafico"><canvas id="grafico-mensual" role="img" aria-label="Gráfico de barras con las ventas por mes"></canvas></div>
+    </section>
+    <div>
+      <section class="bloque" aria-labelledby="t-region">
+        <h2 id="t-region">Por región</h2>
+        <p class="nota-seccion">Seleccione una región para filtrar todo el panel.</p>
+        <ol class="ranking" id="rank-region"></ol>
+      </section>
+      <section class="bloque" aria-labelledby="t-producto">
+        <h2 id="t-producto">Por producto</h2>
+        <p class="nota-seccion">Seleccione un producto para filtrar todo el panel.</p>
+        <ol class="ranking" id="rank-producto"></ol>
+      </section>
+    </div>
+  </div>
+
+  <section class="bloque" aria-labelledby="t-detalle">
+    <div class="detalle-cab">
+      <h2 id="t-detalle">Detalle de ventas</h2>
+      <button type="button" id="btn-exportar" class="btn btn-sec">Descargar CSV</button>
+    </div>
+    <div class="tabla-scroll">
+      <table class="tabla" id="tabla">
+        <thead>
+          <tr>
+            <th scope="col" data-col="fecha" aria-sort="none"><button type="button" class="orden">Fecha<span class="flecha" aria-hidden="true"></span></button></th>
+            <th scope="col" data-col="vendedor" aria-sort="none"><button type="button" class="orden">Vendedor<span class="flecha" aria-hidden="true"></span></button></th>
+            <th scope="col" data-col="producto" aria-sort="none"><button type="button" class="orden">Producto<span class="flecha" aria-hidden="true"></span></button></th>
+            <th scope="col" data-col="region" aria-sort="none"><button type="button" class="orden">Región<span class="flecha" aria-hidden="true"></span></button></th>
+            <th scope="col" data-col="monto" aria-sort="none" class="num"><button type="button" class="orden">Monto<span class="flecha" aria-hidden="true"></span></button></th>
+          </tr>
+        </thead>
+        <tbody id="cuerpo-tabla"></tbody>
+      </table>
+    </div>
+    <div class="pager">
+      <p id="pager-info" role="status"></p>
+      <div>
+        <button type="button" id="pag-ant" class="btn btn-sec">Anterior</button>
+        <button type="button" id="pag-sig" class="btn btn-sec">Siguiente</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="pie"><p id="pie-texto"></p></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================================================
+     CONFIGURACIÓN: lo único que normalmente hay que tocar
+     ===================================================================== */
+  const CONFIG = {
+    DATA_URL: "/api/ventas",        // función de Vercel (api/ventas.js). También acepta una URL CSV directa.
+    LOCALE: "es-EC",
+    MONEDA: "USD",
+    FORMATO_FECHA: "dmy",           // "dmy" = día/mes/año (1/8/2026 es 1 de agosto); "mdy" = mes/día/año
+    EXCLUIR_FECHAS_FUTURAS: true,   // excluye ventas con fecha posterior a hoy
+    EXCLUIR_ATIPICOS: true,         // excluye montos fuera de rango para su producto
+    FACTOR_ATIPICO: 3,              // atípico = monto mayor a 3 veces o menor a un tercio de la mediana del producto
+    MINIMO_POR_PRODUCTO: 5,         // registros mínimos de un producto para calcular su mediana
+    META_MENSUAL: null,             // por ejemplo 25000; con un valor se muestra el avance de la meta y su línea en el gráfico
+    FILAS_POR_PAGINA: 12,
+    ACTUALIZAR_CADA_MIN: 30         // 0 desactiva la actualización automática
+  };
+
+  /* =====================================================================
+     DATOS: lectura de CSV, reglas de calidad y agregaciones (sin DOM)
+     ===================================================================== */
+  //#DATOS-INICIO
+  const D = (function () {
+    function parseCSV(texto) {
+      const t = String(texto).replace(/^\uFEFF/, "");
+      const filas = [];
+      let fila = [], campo = "", comillas = false;
+      for (let i = 0; i < t.length; i++) {
+        const c = t[i];
+        if (comillas) {
+          if (c === '"') {
+            if (t[i + 1] === '"') { campo += '"'; i++; } else comillas = false;
+          } else campo += c;
+        } else if (c === '"') comillas = true;
+        else if (c === ",") { fila.push(campo); campo = ""; }
+        else if (c === "\n" || c === "\r") {
+          if (c === "\r" && t[i + 1] === "\n") i++;
+          fila.push(campo); filas.push(fila); fila = []; campo = "";
+        } else campo += c;
+      }
+      if (campo !== "" || fila.length) { fila.push(campo); filas.push(fila); }
+      return filas;
+    }
+
+    function normalizarTexto(s) {
+      return String(s == null ? "" : s).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function parseFecha(texto, formato) {
+      const s = String(texto == null ? "" : texto).trim();
+      const a = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+      const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
+      let d, m, y;
+      if (a) {
+        if (formato === "mdy") { m = +a[1]; d = +a[2]; } else { d = +a[1]; m = +a[2]; }
+        y = +a[3];
+      } else if (iso) { y = +iso[1]; m = +iso[2]; d = +iso[3]; }
+      else return null;
+      const f = new Date(y, m - 1, d);
+      if (f.getFullYear() !== y || f.getMonth() !== m - 1 || f.getDate() !== d) return null;
+      return f;
+    }
+
+    function parseMonto(texto) {
+      if (typeof texto !== "string") return NaN;
+      let t = texto.replace(/[^\d.,-]/g, "");
+      if (!/\d/.test(t)) return NaN;
+      const p = t.lastIndexOf("."), c = t.lastIndexOf(",");
+      if (p >= 0 && c >= 0) {
+        t = c > p ? t.replace(/\./g, "").replace(",", ".") : t.replace(/,/g, "");
+      } else if (c >= 0) {
+        t = /,\d{1,2}$/.test(t) ? t.replace(",", ".") : t.replace(/,/g, "");
+      } else if (p >= 0 && (t.match(/\./g) || []).length > 1) {
+        t = t.replace(/\./g, "");
+      }
+      const n = Number(t);
+      return isFinite(n) ? n : NaN;
+    }
+
+    const COLUMNAS = ["fecha", "vendedor", "producto", "monto", "region"];
+
+    function leerRegistros(filas, opciones) {
+      const formato = (opciones && opciones.formatoFecha) || "dmy";
+      if (!filas.length) throw new Error("La fuente no devolvió filas.");
+      const cab = filas[0].map(normalizarTexto);
+      const idx = {};
+      const faltan = [];
+      COLUMNAS.forEach(function (n) { idx[n] = cab.indexOf(n); if (idx[n] < 0) faltan.push(n); });
+      if (faltan.length) {
+        throw new Error("No se encontraron las columnas " + faltan.join(", ") +
+          ". Los encabezados de la hoja deben ser Fecha, Vendedor, Producto, Monto y Región.");
+      }
+      const out = [];
+      for (let i = 1; i < filas.length; i++) {
+        const f = filas[i];
+        if (f.every(function (x) { return String(x).trim() === ""; })) continue;
+        const fechaTexto = (f[idx.fecha] || "").trim();
+        const montoTexto = (f[idx.monto] || "").trim();
+        const vendedor = (f[idx.vendedor] || "").trim() || "(sin vendedor)";
+        out.push({
+          linea: i + 1,
+          fechaTexto: fechaTexto,
+          montoTexto: montoTexto,
+          fecha: parseFecha(fechaTexto, formato),
+          monto: parseMonto(montoTexto),
+          vendedor: vendedor,
+          vendedorN: normalizarTexto(vendedor),
+          producto: (f[idx.producto] || "").trim(),
+          region: (f[idx.region] || "").trim()
+        });
+      }
+      return out;
+    }
+
+    function mediana(valores) {
+      const v = valores.slice().sort(function (a, b) { return a - b; });
+      const n = v.length;
+      if (!n) return 0;
+      return n % 2 ? v[(n - 1) / 2] : (v[n / 2 - 1] + v[n / 2]) / 2;
+    }
+
+    function limpiar(registros, o, hoy) {
+      const factor = o.factor || 3;
+      const minimo = o.minimoPorProducto || 5;
+      const finHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59, 999);
+      const base = [], excluidos = [];
+
+      registros.forEach(function (r) {
+        const m = [];
+        if (!r.fecha) m.push({ tipo: "formato", detalle: 'Fecha no reconocida: "' + r.fechaTexto + '"' });
+        if (!isFinite(r.monto)) m.push({ tipo: "formato", detalle: 'Monto no reconocido: "' + r.montoTexto + '"' });
+        if (!r.region || !r.producto) m.push({ tipo: "formato", detalle: "Falta la región o el producto" });
+        if (m.length) excluidos.push({ registro: r, motivos: m }); else base.push(r);
+      });
+
+      const porProducto = {};
+      base.forEach(function (r) { (porProducto[r.producto] = porProducto[r.producto] || []).push(r.monto); });
+      const medianas = {};
+      Object.keys(porProducto).forEach(function (k) {
+        if (porProducto[k].length >= minimo) medianas[k] = mediana(porProducto[k]);
+      });
+
+      const validos = [];
+      base.forEach(function (r) {
+        const m = [];
+        if (o.excluirFuturas && r.fecha > finHoy) m.push({ tipo: "futura", detalle: "Fecha posterior a hoy" });
+        const med = medianas[r.producto];
+        if (o.excluirAtipicos && med > 0) {
+          const ratio = r.monto / med;
+          if (ratio > factor || ratio < 1 / factor) m.push({ tipo: "atipico", detalle: "Monto atípico", mediana: med });
+        }
+        if (m.length) excluidos.push({ registro: r, motivos: m }); else validos.push(r);
+      });
+
+      excluidos.sort(function (a, b) { return a.registro.linea - b.registro.linea; });
+      return { validos: validos, excluidos: excluidos };
+    }
+
+    function sumar(rs) { let t = 0; for (let i = 0; i < rs.length; i++) t += rs[i].monto; return t; }
+
+    function agrupar(rs, claveFn) {
+      const mapa = new Map();
+      rs.forEach(function (r) {
+        const k = claveFn(r);
+        let g = mapa.get(k);
+        if (!g) { g = { clave: k, total: 0, n: 0 }; mapa.set(k, g); }
+        g.total += r.monto; g.n += 1;
+      });
+      return Array.from(mapa.values());
+    }
+
+    function claveMes(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
+    function fechaMax(rs) { let m = null; rs.forEach(function (r) { if (!m || r.fecha > m) m = r.fecha; }); return m; }
+    function fechaMin(rs) { let m = null; rs.forEach(function (r) { if (!m || r.fecha < m) m = r.fecha; }); return m; }
+
+    function serieMensual(rs) {
+      if (!rs.length) return [];
+      const g = {};
+      agrupar(rs, function (r) { return claveMes(r.fecha); }).forEach(function (x) { g[x.clave] = x; });
+      const a = fechaMin(rs), b = fechaMax(rs);
+      let cur = new Date(a.getFullYear(), a.getMonth(), 1);
+      const fin = new Date(b.getFullYear(), b.getMonth(), 1);
+      const out = [];
+      while (cur <= fin) {
+        const k = claveMes(cur);
+        out.push({ clave: k, fecha: new Date(cur.getTime()), total: g[k] ? g[k].total : 0, n: g[k] ? g[k].n : 0 });
+        cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+      }
+      return out;
+    }
+
+    // Si el mes de referencia es el mes en curso, el mes anterior se corta al mismo día (comparación a la fecha).
+    function variacionMensual(rs, fechaRef, hoy) {
+      if (!rs.length || !fechaRef) return null;
+      const ref = new Date(fechaRef.getFullYear(), fechaRef.getMonth(), 1);
+      const ant = new Date(ref.getFullYear(), ref.getMonth() - 1, 1);
+      const kRef = claveMes(ref), kAnt = claveMes(ant);
+      const enCurso = kRef === claveMes(hoy);
+      const diaCorte = enCurso ? hoy.getDate() : 31;
+      const actual = rs.filter(function (r) { return claveMes(r.fecha) === kRef; });
+      const previo = rs.filter(function (r) { return claveMes(r.fecha) === kAnt && r.fecha.getDate() <= diaCorte; });
+      const tA = sumar(actual), tP = sumar(previo);
+      return {
+        mesActual: ref, mesPrevio: ant, totalActual: tA, totalPrevio: tP,
+        variacion: tP > 0 ? (tA - tP) / tP : null, enCurso: enCurso, diaCorte: diaCorte
+      };
+    }
+
+    return {
+      parseCSV: parseCSV, normalizarTexto: normalizarTexto, parseFecha: parseFecha, parseMonto: parseMonto,
+      leerRegistros: leerRegistros, mediana: mediana, limpiar: limpiar, sumar: sumar, agrupar: agrupar,
+      claveMes: claveMes, fechaMax: fechaMax, fechaMin: fechaMin, serieMensual: serieMensual,
+      variacionMensual: variacionMensual
+    };
+  })();
+  //#DATOS-FIN
+
+  /* =====================================================================
+     INTERFAZ
+     ===================================================================== */
+  const $ = function (id) { return document.getElementById(id); };
+  const L = CONFIG.LOCALE;
+  const fmtMoneda = new Intl.NumberFormat(L, { style: "currency", currency: CONFIG.MONEDA });
+  const fmtMonedaCorta = new Intl.NumberFormat(L, { style: "currency", currency: CONFIG.MONEDA, notation: "compact", maximumFractionDigits: 1 });
+  const fmtEntero = new Intl.NumberFormat(L);
+  const fmtPct = new Intl.NumberFormat(L, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const fmtPctSigno = new Intl.NumberFormat(L, { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const fmtFecha = new Intl.DateTimeFormat(L, { day: "2-digit", month: "2-digit", year: "numeric" });
+  const fmtFechaHora = new Intl.DateTimeFormat(L, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const fmtMesCorto = new Intl.DateTimeFormat(L, { month: "short", year: "2-digit" });
+  const fmtMesLargo = new Intl.DateTimeFormat(L, { month: "long", year: "numeric" });
+  const reducirMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const estado = {
+    crudos: [], validos: [], excluidos: [], ordenado: [], leidoEn: null,
+    filtros: { desde: "", hasta: "", region: "", producto: "", vendedor: "" },
+    reglas: { futuras: CONFIG.EXCLUIR_FECHAS_FUTURAS, atipicos: CONFIG.EXCLUIR_ATIPICOS },
+    orden: { col: "fecha", dir: "desc" },
+    pagina: 0,
+    grafico: null
+  };
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function iso(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function aFecha(s) { const p = s.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  function mayuscula(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  /* ---------- Carga de datos ---------- */
+  function urlDatos(forzar) {
+    const base = CONFIG.DATA_URL;
+    const directa = /^https?:/i.test(base);
+    if (!directa && !forzar) return base;
+    return base + (base.indexOf("?") >= 0 ? "&" : "?") + "_=" + Date.now();
+  }
+
+  async function cargar(silencioso, forzar) {
+    const btn = $("btn-actualizar");
+    btn.disabled = true;
+    if (!silencioso && !estado.crudos.length) $("estado-datos").textContent = "Cargando datos…";
+    try {
+      const resp = await fetch(urlDatos(forzar), { cache: "no-store" });
+      const texto = await resp.text();
+      if (!resp.ok) throw new Error(texto && texto.length < 300 ? texto : "La fuente respondió con el código " + resp.status + ".");
+      estado.crudos = D.leerRegistros(D.parseCSV(texto), { formatoFecha: CONFIG.FORMATO_FECHA });
+      estado.leidoEn = new Date();
+      $("error").hidden = true;
+      procesar();
+    } catch (e) {
+      mostrarError(e);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function mostrarError(e) {
+    const msg = e && e.message ? e.message : String(e);
+    if (estado.crudos.length) {
+      $("estado-datos").textContent = "No se pudo actualizar. Se muestran los datos leídos el " + fmtFechaHora.format(estado.leidoEn) + ".";
+      return;
+    }
+    const caja = $("error");
+    caja.hidden = false;
+    caja.textContent = "No se pudieron cargar los datos. " + msg +
+      " Verifique que la variable SHEET_CSV_URL esté definida en Vercel y que la hoja siga publicada como CSV.";
+    $("estado-datos").textContent = "Sin datos.";
+  }
+
+  function procesar() {
+    const r = D.limpiar(estado.crudos, {
+      excluirFuturas: estado.reglas.futuras,
+      excluirAtipicos: estado.reglas.atipicos,
+      factor: CONFIG.FACTOR_ATIPICO,
+      minimoPorProducto: CONFIG.MINIMO_POR_PRODUCTO
+    }, new Date());
+    estado.validos = r.validos;
+    estado.excluidos = r.excluidos;
+    poblarFiltros();
+    estado.pagina = 0;
+    render();
+  }
+
+  /* ---------- Filtros ---------- */
+  function unicos(rs, k) {
+    return Array.from(new Set(rs.map(function (r) { return r[k]; }))).sort(function (a, b) { return a.localeCompare(b, "es"); });
+  }
+
+  function llenarSelect(sel, valores, textoTodos, clave) {
+    const actual = estado.filtros[clave];
+    sel.innerHTML = '<option value="">' + textoTodos + "</option>" +
+      valores.map(function (v) { return '<option value="' + esc(v) + '">' + esc(v) + "</option>"; }).join("");
+    if (valores.indexOf(actual) >= 0) sel.value = actual;
+    else { sel.value = ""; estado.filtros[clave] = ""; }
+  }
+
+  function poblarFiltros() {
+    llenarSelect($("f-region"), unicos(estado.validos, "region"), "Todas", "region");
+    llenarSelect($("f-producto"), unicos(estado.validos, "producto"), "Todos", "producto");
+    $("lista-vendedores").innerHTML = unicos(estado.validos, "vendedor")
+      .map(function (v) { return '<option value="' + esc(v) + '"></option>'; }).join("");
+    const a = D.fechaMin(estado.validos), b = D.fechaMax(estado.validos);
+    $("f-desde").min = $("f-hasta").min = a ? iso(a) : "";
+    $("f-desde").max = $("f-hasta").max = b ? iso(b) : "";
+  }
+
+  function sincronizarFiltros() {
+    $("f-desde").value = estado.filtros.desde;
+    $("f-hasta").value = estado.filtros.hasta;
+    $("f-region").value = estado.filtros.region;
+    $("f-producto").value = estado.filtros.producto;
+    $("f-vendedor").value = estado.filtros.vendedor;
+  }
+
+  function limpiarFiltros() {
+    estado.filtros = { desde: "", hasta: "", region: "", producto: "", vendedor: "" };
+    estado.pagina = 0;
+    sincronizarFiltros();
+    render();
+  }
+
+  // omitir: dimensiones que se ignoran (los rankings no se filtran por su propia dimensión)
+  function filtrar(rs, omitir) {
+    const f = estado.filtros;
+    const om = omitir || [];
+    const sinFecha = om.indexOf("fecha") >= 0;
+    const desde = !sinFecha && f.desde ? aFecha(f.desde) : null;
+    const hasta = !sinFecha && f.hasta ? aFecha(f.hasta) : null;
+    const reg = om.indexOf("region") >= 0 ? "" : f.region;
+    const pro = om.indexOf("producto") >= 0 ? "" : f.producto;
+    const ven = f.vendedor ? D.normalizarTexto(f.vendedor) : "";
+    return rs.filter(function (r) {
+      return (!desde || r.fecha >= desde) && (!hasta || r.fecha <= hasta) &&
+             (!reg || r.region === reg) && (!pro || r.producto === pro) &&
+             (!ven || r.vendedorN.indexOf(ven) >= 0);
+    });
+  }
+
+  /* ---------- Render ---------- */
+  function render() {
+    const rs = filtrar(estado.validos, []);
+    renderEstado();
+    renderCalidad();
+    renderKpis(rs);
+    renderGrafico(rs);
+    renderRanking("region", "rank-region");
+    renderRanking("producto", "rank-producto");
+    renderTabla(rs);
+    $("vacio").hidden = !(estado.leidoEn && rs.length === 0);
+  }
+
+  function renderEstado() {
+    if (!estado.leidoEn) return;
+    const ult = D.fechaMax(estado.validos);
+    $("estado-datos").textContent = (ult ? "Última venta registrada: " + fmtFecha.format(ult) + ". " : "") +
+      "Datos leídos el " + fmtFechaHora.format(estado.leidoEn) + ".";
+    $("pie-texto").textContent = "Fuente: hoja de cálculo de ventas en Google Sheets. El panel lee los datos al abrirse" +
+      (CONFIG.ACTUALIZAR_CADA_MIN > 0 ? " y cada " + CONFIG.ACTUALIZAR_CADA_MIN + " minutos." : ".");
+  }
+
+  function textoMotivo(m) {
+    return m.tipo === "atipico"
+      ? "Monto atípico (la mediana de este producto es " + fmtMoneda.format(m.mediana) + ")"
+      : m.detalle;
+  }
+
+  function renderCalidad() {
+    const ex = estado.excluidos;
+    $("r-futuras").checked = estado.reglas.futuras;
+    $("r-atipicos").checked = estado.reglas.atipicos;
+    const leidos = fmtEntero.format(estado.crudos.length);
+    $("calidad-resumen").textContent = ex.length
+      ? "Se leyeron " + leidos + " registros y se excluyeron " + fmtEntero.format(ex.length) + " por calidad de datos. Los indicadores no los incluyen."
+      : "Se leyeron " + leidos + " registros. Ninguno fue excluido.";
+    $("calidad-detalle").hidden = !ex.length;
+    $("cuerpo-excluidos").innerHTML = ex.map(function (x) {
+      const r = x.registro;
+      return "<tr><td>" + r.linea + "</td><td>" + esc(r.fechaTexto) + "</td><td>" + esc(r.vendedor) + "</td><td>" +
+        esc(r.producto) + '</td><td class="num">' + esc(r.montoTexto) + "</td><td>" +
+        esc(x.motivos.map(textoMotivo).join(". ")) + "</td></tr>";
+    }).join("");
+  }
+
+  function kpi(etiqueta, valor, nota, clase) {
+    return '<div class="kpi"><dt>' + esc(etiqueta) + '</dt><dd class="valor ' + (clase || "") + '">' + esc(valor) +
+      "</dd>" + (nota ? '<dd class="nota">' + esc(nota) + "</dd>" : "") + "</div>";
+  }
+
+  function renderKpis(rs) {
+    const total = D.sumar(rs);
+    const n = rs.length;
+    const html = [];
+    html.push(kpi("Ventas del periodo", fmtMoneda.format(total), "Según los filtros aplicados"));
+    html.push(kpi("Transacciones", fmtEntero.format(n)));
+    html.push(kpi("Ticket promedio", n ? fmtMoneda.format(total / n) : "—", "Venta promedio por transacción"));
+
+    const base = filtrar(estado.validos, ["fecha"]);
+    const v = n ? D.variacionMensual(base, D.fechaMax(rs), new Date()) : null;
+    if (v) {
+      const mesA = fmtMesLargo.format(v.mesActual);
+      const mesP = fmtMesLargo.format(v.mesPrevio);
+      const corte = v.enCurso ? ", al día " + v.diaCorte : "";
+      if (v.variacion === null) {
+        html.push(kpi("Variación mensual", "Sin base", "No hay ventas de " + mesP + " para comparar."));
+      } else {
+        html.push(kpi("Variación mensual", fmtPctSigno.format(v.variacion),
+          mesA + corte + ": " + fmtMoneda.format(v.totalActual) + " frente a " + fmtMoneda.format(v.totalPrevio) + " en " + mesP + ".",
+          v.variacion > 0 ? "pos" : v.variacion < 0 ? "neg" : ""));
+      }
+      if (CONFIG.META_MENSUAL) {
+        const avance = v.totalActual / CONFIG.META_MENSUAL;
+        html.push(kpi("Avance de la meta mensual", fmtPct.format(avance),
+          "Meta de " + mesA + ": " + fmtMoneda.format(CONFIG.META_MENSUAL),
+          avance >= 1 ? "pos" : ""));
+      }
+    }
+    $("kpis").innerHTML = html.join("");
+  }
+
+  function renderGrafico(rs) {
+    const serie = D.serieMensual(rs);
+    if (estado.grafico) { estado.grafico.destroy(); estado.grafico = null; }
+    if (!serie.length) { $("nota-grafico").textContent = ""; return; }
+
+    const mejor = serie.reduce(function (m, x) { return x.total > m.total ? x : m; }, serie[0]);
+    const enCurso = serie[serie.length - 1].clave === D.claveMes(new Date());
+    $("nota-grafico").textContent = "Mes con más ventas: " + fmtMesLargo.format(mejor.fecha) + " (" + fmtMoneda.format(mejor.total) + ")." +
+      (enCurso ? " El último mes está en curso." : "");
+    $("grafico-mensual").setAttribute("aria-label", "Gráfico de barras con las ventas mensuales de " +
+      fmtMesLargo.format(serie[0].fecha) + " a " + fmtMesLargo.format(serie[serie.length - 1].fecha));
+
+    if (typeof Chart === "undefined") {
+      $("nota-grafico").textContent = "No se pudo cargar la librería de gráficos. Revise la conexión a internet.";
+      return;
+    }
+
+    const css = getComputedStyle(document.documentElement);
+    const col = function (n) { return css.getPropertyValue(n).trim(); };
+    Chart.defaults.font.family = '"IBM Plex Sans", system-ui, sans-serif';
+    Chart.defaults.color = col("--tinta2");
+
+    const ultimo = serie.length - 1;
+    const datasets = [{
+      type: "bar", label: "Ventas", data: serie.map(function (x) { return x.total; }),
+      backgroundColor: serie.map(function (_, i) { return i === ultimo ? col("--primario") : col("--claro"); }),
+      borderRadius: 2, maxBarThickness: 48
+    }];
+    if (CONFIG.META_MENSUAL) {
+      datasets.push({
+        type: "line", label: "Meta mensual", data: serie.map(function () { return CONFIG.META_MENSUAL; }),
+        borderColor: col("--aviso-borde"), borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false
+      });
+    }
+
+    estado.grafico = new Chart($("grafico-mensual"), {
+      type: "bar",
+      data: { labels: serie.map(function (x) { return fmtMesCorto.format(x.fecha); }), datasets: datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: reducirMovimiento ? false : { duration: 300 },
+        plugins: {
+          legend: { display: !!CONFIG.META_MENSUAL, position: "bottom" },
+          tooltip: {
+            callbacks: {
+              title: function (items) { return mayuscula(fmtMesLargo.format(serie[items[0].dataIndex].fecha)); },
+              label: function (c) { return " " + c.dataset.label + ": " + fmtMoneda.format(c.parsed.y); },
+              afterLabel: function (c) { return c.datasetIndex === 0 ? " " + serie[c.dataIndex].n + " transacciones" : ""; }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, grid: { color: col("--linea") }, ticks: { callback: function (v) { return fmtMonedaCorta.format(v); } } }
+        }
+      }
+    });
+  }
+
+  function renderRanking(dim, id) {
+    const rs = filtrar(estado.validos, [dim]);
+    const grupos = D.agrupar(rs, function (r) { return r[dim]; }).sort(function (a, b) { return b.total - a.total; });
+    const total = D.sumar(rs);
+    const max = grupos.length ? grupos[0].total : 1;
+    $(id).innerHTML = grupos.map(function (g) {
+      const activo = estado.filtros[dim] === g.clave;
+      const ancho = max > 0 ? Math.max(2, g.total / max * 100) : 0;
+      const pct = total > 0 ? g.total / total : 0;
+      return '<li><button type="button" class="rank" data-dim="' + dim + '" data-valor="' + esc(g.clave) + '" aria-pressed="' + activo + '">' +
+        '<span class="nombre">' + esc(g.clave) + '</span><span class="valor">' + fmtMoneda.format(g.total) + "</span>" +
+        '<span class="barra" aria-hidden="true"><i style="width:' + ancho.toFixed(1) + '%"></i></span>' +
+        '<span class="pct">' + fmtPct.format(pct) + "</span></button></li>";
+    }).join("") || '<li class="vacio-lista">Sin ventas con estos filtros.</li>';
+  }
+
+  function comparar(a, b, col) {
+    if (col === "fecha") return a.fecha - b.fecha;
+    if (col === "monto") return a.monto - b.monto;
+    return a[col].localeCompare(b[col], "es");
+  }
+
+  function renderTabla(rs) {
+    const col = estado.orden.col, dir = estado.orden.dir;
+    const ord = rs.slice().sort(function (a, b) { return (dir === "asc" ? 1 : -1) * comparar(a, b, col); });
+    estado.ordenado = ord;
+
+    const por = CONFIG.FILAS_POR_PAGINA;
+    const paginas = Math.max(1, Math.ceil(ord.length / por));
+    if (estado.pagina >= paginas) estado.pagina = paginas - 1;
+    const ini = estado.pagina * por;
+    const trozo = ord.slice(ini, ini + por);
+
+    $("cuerpo-tabla").innerHTML = trozo.map(function (r) {
+      return "<tr><td>" + fmtFecha.format(r.fecha) + "</td><td>" + esc(r.vendedor) + "</td><td>" + esc(r.producto) +
+        "</td><td>" + esc(r.region) + '</td><td class="num">' + fmtMoneda.format(r.monto) + "</td></tr>";
+    }).join("") || '<tr><td colspan="5">Sin ventas con estos filtros.</td></tr>';
+
+    document.querySelectorAll("#tabla th[data-col]").forEach(function (th) {
+      const activo = th.dataset.col === col;
+      th.setAttribute("aria-sort", activo ? (dir === "asc" ? "ascending" : "descending") : "none");
+      th.querySelector(".flecha").textContent = activo ? (dir === "asc" ? "▲" : "▼") : "";
+    });
+
+    $("pager-info").textContent = ord.length
+      ? "Mostrando " + (ini + 1) + " a " + (ini + trozo.length) + " de " + fmtEntero.format(ord.length) + " ventas"
+      : "";
+    $("pag-ant").disabled = estado.pagina === 0;
+    $("pag-sig").disabled = estado.pagina >= paginas - 1;
+    $("btn-exportar").disabled = !ord.length;
+  }
+
+  /* ---------- Exportar ---------- */
+  function seguro(s) { return /^[=+\-@]/.test(s) ? "'" + s : s; } // evita fórmulas al abrir en Excel
+  function celdaCSV(v) {
+    const s = String(v);
+    return /[;"\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  function exportarCSV() {
+    const filas = [["Fecha", "Vendedor", "Producto", "Región", "Monto"]].concat(estado.ordenado.map(function (r) {
+      return [fmtFecha.format(r.fecha), seguro(r.vendedor), seguro(r.producto), seguro(r.region), r.monto.toFixed(2).replace(".", ",")];
+    }));
+    const texto = filas.map(function (f) { return f.map(celdaCSV).join(";"); }).join("\r\n");
+    const blob = new Blob(["\uFEFF" + texto], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ventas_" + iso(new Date()) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  /* ---------- Eventos ---------- */
+  function alFiltrar() {
+    estado.filtros.desde = $("f-desde").value;
+    estado.filtros.hasta = $("f-hasta").value;
+    estado.filtros.region = $("f-region").value;
+    estado.filtros.producto = $("f-producto").value;
+    estado.filtros.vendedor = $("f-vendedor").value.trim();
+    estado.pagina = 0;
+    render();
+  }
+  ["f-desde", "f-hasta", "f-region", "f-producto"].forEach(function (id) { $(id).addEventListener("change", alFiltrar); });
+  $("f-vendedor").addEventListener("input", alFiltrar);
+  $("btn-limpiar").addEventListener("click", limpiarFiltros);
+  $("btn-actualizar").addEventListener("click", function () { cargar(false, true); });
+  $("btn-exportar").addEventListener("click", exportarCSV);
+
+  $("r-futuras").addEventListener("change", function (e) { estado.reglas.futuras = e.target.checked; procesar(); });
+  $("r-atipicos").addEventListener("change", function (e) { estado.reglas.atipicos = e.target.checked; procesar(); });
+
+  $("pag-ant").addEventListener("click", function () { estado.pagina = Math.max(0, estado.pagina - 1); renderTabla(filtrar(estado.validos, [])); });
+  $("pag-sig").addEventListener("click", function () { estado.pagina += 1; renderTabla(filtrar(estado.validos, [])); });
+
+  $("tabla").addEventListener("click", function (e) {
+    const th = e.target.closest("th[data-col]");
+    if (!th) return;
+    const c = th.dataset.col;
+    if (estado.orden.col === c) estado.orden.dir = estado.orden.dir === "asc" ? "desc" : "asc";
+    else estado.orden = { col: c, dir: (c === "fecha" || c === "monto") ? "desc" : "asc" };
+    estado.pagina = 0;
+    renderTabla(filtrar(estado.validos, []));
+  });
+
+  document.addEventListener("click", function (e) {
+    const rank = e.target.closest(".rank");
+    if (rank) {
+      const dim = rank.dataset.dim, valor = rank.dataset.valor;
+      estado.filtros[dim] = estado.filtros[dim] === valor ? "" : valor;
+      estado.pagina = 0;
+      sincronizarFiltros();
+      render();
+      return;
+    }
+    if (e.target.closest('[data-accion="limpiar"]')) limpiarFiltros();
+  });
+
+  /* ---------- Inicio ---------- */
+  cargar(false, false);
+  if (CONFIG.ACTUALIZAR_CADA_MIN > 0) {
+    setInterval(function () { cargar(true, false); }, CONFIG.ACTUALIZAR_CADA_MIN * 60000);
+  }
+})();
+</script>
+</body>
+</html>
