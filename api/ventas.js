@@ -2,16 +2,15 @@
  * api/ventas.js
  * Función serverless de Vercel (ruta: /api/ventas).
  * Lee el CSV publicado de Google Sheets y lo entrega al panel.
- * La URL de la hoja vive en la variable de entorno SHEET_CSV_URL (Vercel > Settings > Environment Variables),
- * por lo que no queda escrita en el código ni en el repositorio.
+ *
+ * La URL de la hoja está definida abajo. Si en Vercel existe la variable de entorno
+ * SHEET_CSV_URL, esa tiene prioridad y se puede cambiar sin tocar el código.
  */
-module.exports = async function handler(req, res) {
-  const url = process.env.SHEET_CSV_URL;
+const URL_HOJA =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZhG16c6gNzf_76m8fnRuDOnFbYdnDDvr-9PnoEiQOVQLL30TvE44RYisrBVXTUeuZFXvD6Mtqt7ht/pub?output=csv";
 
-  if (!url) {
-    res.status(500).send("Falta la variable de entorno SHEET_CSV_URL en Vercel.");
-    return;
-  }
+module.exports = async function handler(req, res) {
+  const url = process.env.SHEET_CSV_URL || URL_HOJA;
 
   try {
     const respuesta = await fetch(url, { cache: "no-store" });
